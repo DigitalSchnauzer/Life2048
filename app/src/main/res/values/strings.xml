@@ -1,0 +1,78 @@
+<resources>
+    <string name="app_name">Life2048</string>
+
+    <!--Menu-->
+    <string name="file">File</string>
+    <string name="save_game">Save Game</string>
+    <string name="load_game">Load Game</string>
+    <string name="share">Share</string>
+    <string name="scores">Scores</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+
+    <!--MainActivity-->
+    <string name="copyright">Created by Digital Schnauzer. Based on 2048 by Gabrielle Cirulli.</string>
+
+    <string name="new_game">New Game</string>
+
+    <string name="score">Score</string>
+    <string name="score_value">0</string>
+    <string name="best">Best</string>
+    <string name="best_value">0</string>
+
+    <!--Custom Dialog-->
+    <string name="about_dialog">Created by Digital Schnauzer. Based on 2048 by Gabrielle Cirulli. \nVersion: 0.2 \nLast update: 15/10/15</string>
+    <string name="close">Close</string>
+
+    <!--LogIn Dialog-->
+    <string name="welcome">Welcome to Life2048!</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="remember">Remember me?</string>
+    <string name="title_activity_login_dialog">Log In</string>
+
+    <!--Settings Dialog-->
+    <string name="title_activity_settings_dialog">Settings</string>
+    <string name="sound">Sound?</string>
+    <string name="unlimited">Allow unlimited gameplay?</string>
+    <string name="timed">Against the clock mode?</string>
+    <string name="fullscreen">Allow fullscreen mode?</string>
+    <string name="landscape">Allow landscape mode?</string>
+    <string name="blackAndWhite">Black and white mode?</string>
+    <string name="originalMode">Original numeric mode?</string>
+    <string name="generalVolume">General Volume</string>
+    <string name="actionVolume">Action Volume</string>
+    <string name="musicVolume">Music Volume</string>
+    <string name="restore">Restore Defaults</string>
+    <string name="credits">Credits</string>
+    <string name="userId">User id</string>
+
+    <!--General-->
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
+    <string name="general">General</string>
+    <string name="gameplay">Gameplay</string>
+    <string name="audio">Audio</string>
+    <string name="visual">Visual</string>
+    <string name="goBack">Go Back</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="take_photo">Take photo</string>
+
+    <!--Current Score Dialog-->
+    <string name="title_activity_currentScore_dialog">Current Score</string>
+    <string name="yourScore">Your Score</string>
+    <string name="yourName">Your Name</string>
+    <string name="defaultScore">0000</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_drawer_test">DrawerTest</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+</resources>

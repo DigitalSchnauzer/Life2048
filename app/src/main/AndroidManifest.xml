@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="schnauzer.digital.life2048" >
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme" >
+        <activity android:name=".MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".login_dialog"
+            android:label="@string/title_activity_login_dialog"
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
+        </activity>
+        <activity
+            android:name=".settings_dialog"
+            android:label="@string/title_activity_settings_dialog"
+            android:theme="@android:style/Theme.Holo.Dialog" >
+        </activity>
+        <activity
+            android:name=".currentScore_dialog"
+            android:label="@string/title_activity_currentScore_dialog"
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
+        </activity>
+    </application>
+
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true" />
+
+</manifest>
