@@ -66,6 +66,9 @@
     <string name="yourName">Your Name</string>
     <string name="defaultScore">0000</string>
 
+    <!--Drawer-->
+    <string name="log_in">Log In</string>
+
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_drawer_test">DrawerTest</string>
