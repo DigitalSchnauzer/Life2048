@@ -71,22 +71,14 @@ public class ServiceManager {
         executeRequest(baseUrl+"SavePlayer", jsonObject);
     }
 
-    /*protected static void savePlayer (int id, String name, char status) {
-        executeRequest(baseUrl+"SavePlayer?Matricula={"+id+"}&Name={"+name+"}&Status={"+status+"}");
-        executeRequest(baseUrl+"SavePlayer?Player={json}");
-    }*/
 
     protected static void getListOfPlayers () {
-        //ArrayList<Player> players = new ArrayList<Player>();
         String stringUrl = baseUrl+"GetPlayers";
         executeRequest(stringUrl);
-        //return players;
     }
 
     protected static void getStatus (int id) {
-        //Player.Status status = null;
         executeRequest(baseUrl+"GetStatus?matricula={"+id+"}");
-        //return status;
     }
 
     protected static void invitePlayer (int myId, int id) { // invite player
@@ -102,8 +94,49 @@ public class ServiceManager {
     }
 
     protected static void setStartStatus (int myId, int id, int x1, int y1, int value1, int x2, int y2, int value2) { // set start status for second player
-        gameController.setStartStatus(x1, y1, value1, x2, y2, value2);
-        executeRequest(baseUrl+"SetInitialBoard?MatriculaP1={"+myId+"}&MatriculaP2={"+id+"}&X1={"+x1+"}&Y1={"+y1+"}&Value1={"+value1+"}&X2={"+x2+"}&Y2={"+y2+"}&Value2={"+value2+"}");
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("MatriculaP1", Integer.toString(myId));
+        } catch (JSONException e) {
+            Log.wtf(name, "MatriculaP1 JSON failed.");
+        }
+        try {
+            jsonObject.put("MatriculaP2", Integer.toString(id));
+        } catch (JSONException e) {
+            Log.wtf(name, "MatriculaP2 JSON failed.");
+        }
+        try {
+            jsonObject.put("X1", x1);
+        } catch (JSONException e) {
+            Log.wtf(name, "X1 JSON failed.");
+        }
+        try {
+            jsonObject.put("Y1", y1);
+        } catch (JSONException e) {
+            Log.wtf(name, "Y1 JSON failed.");
+        }
+        try {
+            jsonObject.put("Value1", value1);
+        } catch (JSONException e) {
+            Log.wtf(name, "Value1 JSON failed.");
+        }
+        try {
+            jsonObject.put("X2", x2);
+        } catch (JSONException e) {
+            Log.wtf(name, "X2 JSON failed.");
+        }
+        try {
+            jsonObject.put("Y2", y2);
+        } catch (JSONException e) {
+            Log.wtf(name, "Y2 JSON failed.");
+        }
+        try {
+            jsonObject.put("Value2", value2);
+        } catch (JSONException e) {
+            Log.wtf(name, "Value2 JSON failed.");
+        }
+        //gameController.setStartStatus(x1, y1, value1, x2, y2, value2);
+        executeRequest(baseUrl+"SetInitialBoard", jsonObject);
     }
 
     protected static void getStartStatus (int id) {
@@ -113,19 +146,37 @@ public class ServiceManager {
     }
 
     protected static void setTurn (int movement, int x, int y, int value, int id) { // termina el turno
-        gameController.myTurn = false;
-        executeRequest(baseUrl+"SetTurn?Matricula={"+id+"}&X1={"+x+"}&Y1={"+y+"}&Value={"+value+"}&Direction={"+movement+"}");
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("Matricula", Integer.toString(id));
+        } catch (JSONException e) {
+            Log.wtf(name, "Matricula JSON failed.");
+        }
+        try {
+            jsonObject.put("X", x);
+        } catch (JSONException e) {
+            Log.wtf(name, "X JSON failed.");
+        }
+        try {
+            jsonObject.put("Y", y);
+        } catch (JSONException e) {
+            Log.wtf(name, "Y JSON failed.");
+        }
+        try {
+            jsonObject.put("Value", value);
+        } catch (JSONException e) {
+            Log.wtf(name, "Value JSON failed.");
+        }
+        try {
+            jsonObject.put("Direction", Integer.toString(movement));
+        } catch (JSONException e) {
+            Log.wtf(name, "Direction JSON failed.");
+        }
+        executeRequest(baseUrl+"SetTurn", jsonObject);
     }
 
     protected static void getTurn (int id) {
-        int movement, x, y, value;
-        movement = 0;
-        x = 0;
-        y = 0;
-        value = 0;
         executeRequest(baseUrl+"GetTurn?matricula={"+id+"}");
-        gameController.moveTiles(movement, x, y, value);
-        gameController.myTurn = true;
     }
 
     protected static void checkConnection () {
@@ -200,6 +251,34 @@ class DownloadWebpageTask extends AsyncTask<String, Void, String> {
 
         switch (method) {
             case "GetTurn":
+                JSONObject board = null;
+                try {
+                    board = new JSONObject(result);
+                    Log.d("DownloadWebPageTask", "players JSONArray: "+board.toString());
+                    Log.d("DownloadWebPageTask", "players JSONArray.length(): "+board.length());
+
+                    String matricula = board.getString("Matricula");
+                    int x = board.getInt("X1");
+                    int y = board.getInt("Y1");
+                    int value = board.getInt("Value");
+                    int movement = board.getInt("Direction");
+
+                    ServiceManager.currentActivity.executeTurn(matricula, x, y, value, movement);
+                } catch (JSONException e) {
+                    Log.wtf("DownloadWebPageTask", "Creation of board in OnPostExecute's GetInitialBoard failed.");
+                    Log.d("DownloadWebPageTask", "Exception: board JSONObject: "+board.toString());
+                    e.printStackTrace();
+                }
+
+                if (MainActivity.online) {
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ServiceManager.getTurn(Integer.parseInt(MainActivity.userid));
+                        }
+                    }, 5000);
+                }
                 break;
             case "SetTurn":
                 break;
@@ -227,7 +306,7 @@ class DownloadWebpageTask extends AsyncTask<String, Void, String> {
             case "InvitePlayer":
                 break;
             case "GetStatus":
-                JSONObject status = null;
+                /*JSONObject status = null;
                 String stat = new String();
                 if (!result.equalsIgnoreCase("")) {
                     try {
@@ -241,10 +320,16 @@ class DownloadWebpageTask extends AsyncTask<String, Void, String> {
                         if (status != null)
                             Log.wtf("DownloadWebPageTask", "Exception: status JSONArray: " + status.toString());
                     }
-                }
-                Log.d("DownloadWebPageTask", "result: " + result + " | invitation active? "+invitation_dialog.active.toString());
+                }*/
+                Log.d("DownloadWebPageTask", "result: " + result + " | invitation active? "+invitation_dialog.active.toString() + " | multiAlreadyStarted? "+MainActivity.multiAlreadyStarted + " | host? "+MainActivity.host);
                 if (result.equalsIgnoreCase("\"I\"") && !invitation_dialog.active) {
                     ServiceManager.currentActivity.startInvitationDialog();
+                } else if (result.equalsIgnoreCase("\"P\"") && !MainActivity.multiAlreadyStarted) {
+                    ServiceManager.currentActivity.startMultiPlayerGame();
+                    if (MainActivity.host)
+                        ServiceManager.currentActivity.myTurn = true;
+                    else
+                        ServiceManager.currentActivity.myTurn = false;
                 }
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -256,11 +341,30 @@ class DownloadWebpageTask extends AsyncTask<String, Void, String> {
                 break;
             case "AcceptInvitation":
                 break;
-            case "ReleasePlayer":
+            case "ReleasePlayers":
                 break;
             case "SetInitialBoard":
                 break;
             case "GetInitialBoard":
+                board = null;
+                try {
+                    board = new JSONObject(result);
+                    Log.d("DownloadWebPageTask", "players JSONArray: "+board.toString());
+                    Log.d("DownloadWebPageTask", "players JSONArray.length(): "+board.length());
+
+                    int x1 = board.getInt("X1");
+                    int y1 = board.getInt("Y1");
+                    int value1 = board.getInt("Value1");
+                    int x2 = board.getInt("X2");
+                    int y2 = board.getInt("Y2");
+                    int value2 = board.getInt("Value2");
+
+                    ServiceManager.currentActivity.setMyStartStatus(x1, y1, value1, x2, y2, value2);
+                } catch (JSONException e) {
+                    Log.wtf("DownloadWebPageTask", "Creation of board in OnPostExecute's GetInitialBoard failed.");
+                    Log.d("DownloadWebPageTask", "Exception: board JSONObject: "+board.toString());
+                    e.printStackTrace();
+                }
                 break;
             case "SavePlayer":
                 break;

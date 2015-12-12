@@ -43,7 +43,10 @@ public class players_dialog extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Player player = playersList.get(position);
                 if (player.getStatus().equalsIgnoreCase("D")) {
-                    ServiceManager.invitePlayer(8542, player.getId());
+                    MainActivity.host = true;
+                    MainActivity.otherid = Integer.toString(player.getId());
+                    MainActivity.multiAlreadyStarted = false;
+                    ServiceManager.invitePlayer(Integer.parseInt(MainActivity.userid), player.getId());
                     Toast.makeText(getBaseContext(), "Inviting " + player.getName() + "...", Toast.LENGTH_SHORT).show();
                     finish();
                 }

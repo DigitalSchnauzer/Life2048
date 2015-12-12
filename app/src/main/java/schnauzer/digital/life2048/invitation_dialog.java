@@ -30,6 +30,8 @@ public class invitation_dialog extends Activity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.join:
+                MainActivity.online = true;
+                MainActivity.host = false;
                 ServiceManager.acceptRequest(Integer.parseInt(MainActivity.userid));
                 finish();
                 break;

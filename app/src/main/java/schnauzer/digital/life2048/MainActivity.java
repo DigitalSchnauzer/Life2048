@@ -37,6 +37,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener{
 
@@ -44,8 +45,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
-    protected boolean online = false;
-    protected boolean myTurn = false;
 
     static final int USER_SCORE_REQUEST = 1;
     static final int REQUEST_IMAGE_CAPTURE = 2;
@@ -55,6 +54,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static final String USERDATA_FILENAME = "user_data";
     static String username = new String();
     static String userid = new String();
+    static String otherid = new String();
+    static protected boolean online = false;
+    static protected boolean myTurn = false;
+    static boolean host = false;
+    static protected boolean multiAlreadyStarted = false;
 
     PackageManager pm;
 
@@ -104,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //Toast.makeText(this,"Screen switched to Portrait mode",Toast.LENGTH_SHORT).show();
             setContentView(R.layout.activity_main);
         }
+
+        multiAlreadyStarted = false;
 
         // ORIENTATION END
 
@@ -295,6 +301,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         switch (item.getItemId()) {
             case R.id.new_game_actionbar: case R.id.new_game_menu_item:
+                online = false;
+                host = false;
+                multiAlreadyStarted = false;
+                ServiceManager.releasePlayer(Integer.parseInt(MainActivity.userid));
                 gameController = new GameController(size, tileViews, this);
                 updateView();
                 return true;
@@ -482,6 +492,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         Log.wtf(name, "onDestroy() llamado");
+        if (userid.length()>0)
+            ServiceManager.releasePlayer(Integer.parseInt(userid));
     }
 
     @Override
@@ -592,7 +604,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     protected void startInvitationDialog () {
+        if (host)
+            return;
         Intent intent = new Intent(this, invitation_dialog.class);
         startActivity(intent);
+    }
+
+    protected void startMultiPlayerGame () {
+        if (host) {
+            Random rnd = new Random();
+            multiAlreadyStarted = true;
+
+            int x1 = rnd.nextInt(size);
+            int y1 = rnd.nextInt(size);
+            int value1 = rnd.nextInt(2);
+            if (value1 == 0)
+                value1 = 2;
+            else if (value1 == 1)
+                value1 = 4;
+
+            int x2 = rnd.nextInt(size);
+            int y2 = rnd.nextInt(size);
+            int value2 = rnd.nextInt(2);
+            if (value2 == 0)
+                value2 = 2;
+            else if (value2 == 1)
+                value2 = 4;
+
+            gameController = new GameController(size, tileViews, this, x1, y1, value1, x2, y2, value2);
+            updateView();
+            ServiceManager.setStartStatus(Integer.parseInt(userid), Integer.parseInt(otherid), x1, y1, value1, x2, y2, value2);
+        } else {
+            ServiceManager.getStartStatus(Integer.parseInt(userid));
+        }
+    }
+
+    protected void setMyStartStatus (int x1, int y1, int value1, int x2, int y2, int value2) {
+        gameController = new GameController(size, tileViews, this, x1, y1, value1, x2, y2, value2);
+        updateView();
+        multiAlreadyStarted = true;
+    }
+
+    protected void executeTurn (String matricula, int x, int y, int value, int movement) {
+        if (myTurn)
+            return;
+        gameController.moveTiles(movement, x, y, value);
+        myTurn = true;
     }
 }
