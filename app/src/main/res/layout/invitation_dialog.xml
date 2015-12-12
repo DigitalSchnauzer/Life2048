@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|top"
-            android:text="@string/welcome"
+            android:text="@string/invitation"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#ffffff"
             android:textStyle="bold"/>
@@ -32,34 +32,15 @@
         android:layout_gravity="center_horizontal"
         android:padding="10dp">
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/username"
-            android:layout_gravity="center_horizontal"
-            android:hint="@string/username"
-            android:inputType="text" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/userId"
-            android:layout_gravity="center_horizontal"
-            android:fontFamily="sans-serif"
-            android:hint="@string/userId"
-            android:inputType="number" />
-
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/remember"
-            android:id="@+id/remember_textView" />
-
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/remember_switch" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/defaultHost"
+            android:textColor="#000000"
+            android:id="@+id/invitationText"
+            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 
@@ -74,15 +55,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/cancel"
-            android:id="@+id/cancel" />
+            android:text="@string/dismiss"
+            android:id="@+id/dismiss" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/title_activity_login_dialog"
-            android:id="@+id/login" />
+            android:text="@string/join"
+            android:id="@+id/join" />
     </LinearLayout>
 
 

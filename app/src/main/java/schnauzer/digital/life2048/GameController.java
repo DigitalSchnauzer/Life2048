@@ -43,6 +43,7 @@ public class GameController {
     }
 
     public boolean gameOver = false;
+    protected boolean online = false;
     public ArrayList<Tile> tiles;
     Random rnd;
     Grid grid;
@@ -51,6 +52,11 @@ public class GameController {
     MinorYComparator minorYComparator;
     MajorXComparator majorXComparator;
     MajorYComparator majorYComparator;
+
+    protected int lastMovement;
+    protected int lastX;
+    protected int lastY;
+    protected int lastValue;
 
     TextView tileViews[][];
     MainActivity main;
@@ -78,6 +84,31 @@ public class GameController {
         addRandomTile();
     }
 
+    public GameController(int size, TextView tileViews[][], MainActivity main, int x1, int y1, int value1, int x2, int y2,  int value2) {
+        //constructor
+        rnd = new Random();
+        this.size = size;
+        grid = new Grid(size);
+        this.tileViews = tileViews;
+        this.main = main;
+        main.score=0;
+        main.updateScore();
+
+        tiles = new ArrayList<Tile>() {};
+
+        minorXComparator = new MinorXComparator();
+        minorYComparator = new MinorYComparator();
+        majorXComparator = new MajorXComparator();
+        majorYComparator = new MajorYComparator();
+
+        setStartStatus(x1, y1, value1, x2, y2, value2);
+    }
+
+    protected void setStartStatus (int x1, int y1, int value1, int x2, int y2, int value2) {
+        addTile(x1, y1, value1);
+        addTile(x2, y2, value2);
+    }
+
     public void addRandomTile () {
         int x, y;
         do {
@@ -95,12 +126,21 @@ public class GameController {
         else if (value==1)
             value=4;
 
+        this.lastX = x;
+        this.lastY = y;
+        this.lastValue = value;
         tiles.add(new Tile(x, y, value));
         grid.setCellBusy(x, y);
     }
 
-    public void moveTiles(int movement) {
+    protected void addTile (int x, int y, int value) {
+        tiles.add(new Tile(x, y, value));
+        grid.setCellBusy(x, y);
+    }
+
+    protected boolean moveTiles(int movement) {
         // 0 = up; 1 = right; 2 = down; 3 = left;
+        this.lastMovement = movement;
 
         switch (movement) {
             case 0:
@@ -135,7 +175,50 @@ public class GameController {
         if (movementCount>0) {
             addRandomTile();
             gameOver = false;
+            return true;
+        } else
+            return false;
+    }
+
+    protected boolean moveTiles(int movement, int x, int y, int value) {
+        // 0 = up; 1 = right; 2 = down; 3 = left;
+
+        switch (movement) {
+            case 0:
+                Collections.sort(tiles, minorYComparator);
+                break;
+            case 1:
+                Collections.sort(tiles, majorXComparator);
+                break;
+            case 2:
+                Collections.sort(tiles, majorYComparator);
+                break;
+            case 3:
+                Collections.sort(tiles, minorXComparator);
+                break;
         }
+
+        movementCount=0;
+
+        for (int i=0; i<tiles.size(); i++) {
+            i = moveCurrentTile(tiles.get(i), movement, i);
+        }
+
+        gameOver = true;
+
+        for (int j=0; j<size; j++) {
+            for (int i=0; i<size; i++) {
+                if (grid.cells[i][j]==false)
+                    gameOver = false;
+            }
+        }
+
+        if (movementCount>0) {
+            addTile(x, y, value);
+            gameOver = false;
+            return true;
+        } else
+            return false;
     }
 
     public int moveCurrentTile(Tile tile, int movement, int i) {

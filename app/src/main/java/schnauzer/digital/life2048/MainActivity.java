@@ -44,17 +44,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
+    protected boolean online = false;
+    protected boolean myTurn = false;
 
     static final int USER_SCORE_REQUEST = 1;
     static final int REQUEST_IMAGE_CAPTURE = 2;
 
     static final String name = "MainActivity";
     static final String FILENAME = "settings_data";
+    static final String USERDATA_FILENAME = "user_data";
+    static String username = new String();
+    static String userid = new String();
 
     PackageManager pm;
 
     Button photoButton;
     Button logInButton;
+    Button playOnline;
+
     //Button newGameBtn;
     Button scoreBtn;
     TextView userScore;
@@ -68,10 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView originalModeSwitch;
     TextView timedSwitch;
     TextView unlimitedSwitch;
-    EditText userID;
-    EditText userName;
-
-    MyStorageManager sm = new MyStorageManager();
+    TextView userID;
+    TextView userName;
 
     public static int count;
     GestureOverlayView gestureOverlayView;
@@ -102,13 +107,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // ORIENTATION END
 
-        // DISPLAY LOGIN?
-
-        if (count<1) {
-            Intent intent = new Intent(this, login_dialog.class);
-            startActivity(intent);
-        }
-
         count++;
         // DISPLAY LOGIN? END
 
@@ -118,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         photoButton = (Button) findViewById(R.id.drawer_photo_button);
         logInButton = (Button) findViewById(R.id.log_in);
+        playOnline = (Button) findViewById(R.id.play_online);
         //newGameBtn = (Button) findViewById(R.id.newGameButton);
         scoreBtn = (Button) findViewById(R.id.scoreButton);
         userScore = (TextView) findViewById(R.id.userScore);
@@ -132,13 +131,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         originalModeSwitch = (TextView) findViewById(R.id.originalMode_On);
         timedSwitch = (TextView) findViewById(R.id.timed_On);
         unlimitedSwitch = (TextView) findViewById(R.id.unlimited_On);
-        userID = (EditText) findViewById(R.id.drawer_id);
-        userName = (EditText) findViewById(R.id.drawer_username);
+        userID = (TextView) findViewById(R.id.drawer_id);
+        userName = (TextView) findViewById(R.id.drawer_username);
 
         //newGameBtn.setOnClickListener(this);
         scoreBtn.setOnClickListener(this);
         photoButton.setOnClickListener(this);
         logInButton.setOnClickListener(this);
+        playOnline.setOnClickListener(this);
         gestureOverlayView.setOnTouchListener(this);
 
         // INPUT CODE END
@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setHomeButtonEnabled(true);
 
         // NAVIGATION DRAWER CODE END
+        ServiceManager.setActivity(this);
     }
 
     @Override
@@ -311,9 +312,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        Intent intent;
         switch (v.getId()) {
             case R.id.scoreButton:
-                Intent intent = new Intent(this, currentScore_dialog.class);
+                intent = new Intent(this, currentScore_dialog.class);
                 intent.putExtra("score", score);
                 startActivityForResult(intent, USER_SCORE_REQUEST);
                 break;
@@ -326,86 +328,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 break;
             case R.id.log_in:
-                ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                if (networkInfo != null && networkInfo.isConnected()) {
-                    new DownloadWebpageTask().execute(ServiceManager.stringUrl);
-                } else {
-                    Toast.makeText(MainActivity.this, "No network connection available", Toast.LENGTH_SHORT).show();
-                    Log.wtf(name, "No network connection available.");
-                }
+                intent = new Intent(this, login_dialog.class);
+                startActivity(intent);
+                break;
+            case R.id.play_online:
+                intent = new Intent(this, players_dialog.class);
+                startActivity(intent);
                 break;
         }
     }
 
-    private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-
-            // params comes from the execute() call: params[0] is the url.
-            try {
-                return downloadUrl(urls[0]);
-            } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            // result after connection is done
-            Toast.makeText(MainActivity.this, "Connection Succesful", Toast.LENGTH_SHORT).show();
-            Log.wtf(name, "Result received: "+result);
-        }
-
-        // Given a URL, establishes an HttpUrlConnection and retrieves
-        // the web page content as a InputStream, which it returns as
-        // a string.
-        private String downloadUrl(String myurl) throws IOException {
-            InputStream is = null;
-            // Only display the first 500 characters of the retrieved
-            // web page content.
-            int len = 500;
-
-            try {
-                URL url = new URL(myurl);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000 /* milliseconds */);
-                conn.setConnectTimeout(15000 /* milliseconds */);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-                // Starts the query
-                conn.connect();
-                int response = conn.getResponseCode();
-                Log.wtf(name, "The response from the service is: " + response);
-                is = conn.getInputStream();
-
-                // Convert the InputStream into a string
-                String contentAsString = readIt(is, len);
-                return contentAsString;
-
-                // Makes sure that the InputStream is closed after the app is
-                // finished using it.
-            } finally {
-                if (is != null) {
-                    is.close();
-                }
-            }
-        }
-
-        // Reads an InputStream and converts it to a String.
-        public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(stream, "UTF-8");
-            char[] buffer = new char[len];
-            reader.read(buffer);
-            return new String(buffer);
-        }
-
-    }
-
     public boolean onTouch(View v, MotionEvent event) {
-
         switch (event.getAction())
         {
             case MotionEvent.ACTION_DOWN: {
@@ -414,6 +347,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case MotionEvent.ACTION_UP: {
+                if (online && !myTurn)
+                    break;
+
+                boolean validMovement = false;
                 x2 = event.getX();
                 y2 = event.getY();
 
@@ -423,25 +360,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (Math.abs(xDifference) > Math.abs(yDifference)) {
                     if (xDifference > 0) {
                         //Toast.makeText(MainActivity.this, "Right", Toast.LENGTH_SHORT).show();
-                        gameController.moveTiles(1);
+                        validMovement = gameController.moveTiles(1);
                     } else if (xDifference < 0) {
                         //Toast.makeText(MainActivity.this, "Left", Toast.LENGTH_SHORT).show();
-                        gameController.moveTiles(3);
+                        validMovement = gameController.moveTiles(3);
                     }
                 } else {
                     if (yDifference > 0) {
                         //Toast.makeText(MainActivity.this, "Up", Toast.LENGTH_SHORT).show();
-                        gameController.moveTiles(0);
+                        validMovement = gameController.moveTiles(0);
                     } else if (yDifference < 0){
                         //Toast.makeText(MainActivity.this, "Down", Toast.LENGTH_SHORT).show();
-                        gameController.moveTiles(2);
+                        validMovement = gameController.moveTiles(2);
                     }
                 }
+                if (online && validMovement) {
+                    myTurn = false;
+                    ServiceManager.setTurn(gameController.lastMovement, gameController.lastX, gameController.lastY, gameController.lastValue, Integer.parseInt(userid));
+                }
+
                 if (gameController.gameOver) {
                     Intent intent = new Intent(this, currentScore_dialog.class);
                     intent.putExtra("score", score);
                     startActivityForResult(intent, USER_SCORE_REQUEST);
-                    //gameController = new GameController(size, tileViews, this);
                 }
                 updateView();
                 break;
@@ -453,7 +394,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return true;
     }
 
-    public void updateScore () {
+    protected void updateScore () {
         currentScore.setText(score+"");
     }
 
@@ -499,6 +440,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         Log.wtf(name, "onResume() llamado");
+        FileInputStream fis = null;
+
+        try {fis = openFileInput(USERDATA_FILENAME);} catch (FileNotFoundException e) {e.printStackTrace(); assignDefaultData();}
+        //try {fis.close();} catch (IOException e) {e.printStackTrace(); Log.wtf(this.name, "Exception on FileInputStream closing");}
+        StringBuilder sb = new StringBuilder();
+        try{
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            fis.close();
+        } catch(OutOfMemoryError om){om.printStackTrace(); Log.wtf(name, "Out of Memory Exception on FileInputStream closing");
+        } catch (IOException e) {e.printStackTrace(); Log.wtf(name, "IOException on FileInputStream closing");
+        } catch(Exception ex){ex.printStackTrace(); Log.wtf(name, "Exception on FileInputStream closing");
+        }
+        String result = sb.toString();
+        if (result.length() > 0)
+            readUser(result);
+
+        if (MainActivity.username.length() > 0 && MainActivity.userid.length() > 0)
+            ServiceManager.getStatus(Integer.parseInt(MainActivity.userid));
+
+        ServiceManager.currentActivity = this;
     }
 
     @Override
@@ -525,6 +490,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.wtf(name, "onRestart() llamado");
     }
 
+    private void readUser(String data) {
+        String currentString = "";
+        char current;
+        int j=0;
+        for (int i=0; i<data.length(); i++) {
+            current = data.charAt(i);
+            if (current != '|')
+                currentString += current;
+            else {
+                j = assignUser(j, currentString);
+                currentString = "";
+            }
+        }
+    }
+
     private void readString(String data) {
         String currentString = "";
         char current;
@@ -549,8 +529,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         originalModeSwitch.setText(data);
         timedSwitch.setText(data);
         unlimitedSwitch.setText(data);
-        userID.setText("");
-        userName.setText("");
+        /*userID.setText("");
+        userName.setText("");*/
     }
 
     private int assignData(int j, String data) {
@@ -583,15 +563,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.wtf(this.name, "UnlimitedSwitch: "+data);
                 unlimitedSwitch.setText(data);
                 break;
-            case 7:
+            /*case 7:
                 Log.wtf(this.name, "UserID: "+data);
                 userID.setText(data);
                 break;
             case 8:
                 Log.wtf(this.name, "UserName: "+data);
                 userName.setText(data);
+                break;*/
+        }
+        return j+1;
+    }
+
+    private int assignUser(int j, String data) {
+        switch (j) {
+            case 0:
+                Log.wtf(this.name, "UserName: "+data);
+                MainActivity.username = data;
+                userName.setText(data);
+                break;
+            case 1:
+                Log.wtf(this.name, "UserID: "+data);
+                MainActivity.userid = data;
+                userID.setText(data);
                 break;
         }
         return j+1;
+    }
+
+    protected void startInvitationDialog () {
+        Intent intent = new Intent(this, invitation_dialog.class);
+        startActivity(intent);
     }
 }

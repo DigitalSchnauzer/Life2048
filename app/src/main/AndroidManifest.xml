@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="schnauzer.digital.life2048" >
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -27,14 +34,17 @@
         </activity>
         <activity
             android:name=".currentScore_dialog"
-            android:label="@string/title_activity_currentScore_dialog"
+            android:label="@string/title_activity_players_dialog"
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
+        </activity>
+        <activity
+            android:name=".players_dialog"
+            android:theme="@android:style/Theme.Holo.Light.Dialog" >
+        </activity>
+        <activity android:name=".invitation_dialog"
+            android:label="@string/title_activity_players_dialog"
             android:theme="@android:style/Theme.Holo.Light.Dialog" >
         </activity>
     </application>
-
-    <uses-feature android:name="android.hardware.camera"
-        android:required="true" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>
